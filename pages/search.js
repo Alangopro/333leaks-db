@@ -1,13 +1,10 @@
-import fs from 'fs';
-import path from 'path';
-
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const { nick } = req.query;
 
-  const filePath = path.join(process.cwd(), 'public', 'wyciek.txt');
-
   try {
-    const data = fs.readFileSync(filePath, 'utf-8');
+    const response = await fetch('https://333leaks.netlify.app/wyciek.txt');
+    const data = await response.text();
+
     const foundLine = data.split('\n').find(line => line.includes(nick));
 
     if (foundLine) {
@@ -16,7 +13,7 @@ export default function handler(req, res) {
       res.status(404).json({ error: 'Nick not found' });
     }
   } catch (error) {
-    console.error('Error reading file:', error);
+    console.error('Error fetching file:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }
