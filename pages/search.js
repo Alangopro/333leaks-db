@@ -1,19 +1,26 @@
-export default async function handler(req, res) {
-  const { nick } = req.query;
+import { useState } from 'react';
 
-  try {
-    const response = await fetch('https://333leaks.netlify.app/wyciek.txt');
-    const data = await response.text();
+const SearchPage = () => {
+  const [searchResult, setSearchResult] = useState(null);
 
-    const foundLine = data.split('\n').find(line => line.includes(nick));
+  const handleSearch = async (nick) => {
+    try {
+      const response = await fetch(`/api/search?nick=${nick}`);
+      const data = await response.json();
 
-    if (foundLine) {
-      res.status(200).json({ data: foundLine });
-    } else {
-      res.status(404).json({ error: 'Nick not found' });
+      setSearchResult(data.data);
+    } catch (error) {
+      console.error('Error searching:', error);
+      setSearchResult('An error occurred while searching.');
     }
-  } catch (error) {
-    console.error('Error fetching file:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}
+  };
+
+  return (
+    <div>
+      <input type="text" onChange={(e) => handleSearch(e.target.value)} />
+      <div>{searchResult}</div>
+    </div>
+  );
+};
+
+export default SearchPage;
