@@ -11,9 +11,9 @@ export default function Home() {
       </Head>
 
       <main>
-        <Header title="ayo wtf!" />
+        <Header title="404 Not found" />
         <p className="description">
-          niggas hating.
+          czego ty kurwo szukasz?
         </p>
       </main>
 
