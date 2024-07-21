@@ -1,0 +1,8 @@
+# Omen Gaming Hub
+This app lets optimize your pc for best performance
+↪ https://www.omen.com/pl/pl/omen-gaming-hub.html
+
+# Hellzerg Tweaks
+This app let's you compleatly debloat your pc
+for the best performacne and even download software.
+↪ https://github.com/hellzerg/optimizer
