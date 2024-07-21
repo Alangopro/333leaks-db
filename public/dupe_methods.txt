@@ -1,0 +1,29 @@
+# Alt+F4 v2.0 - Task Manager
+↪ 1. Open task manager
+↪ 2. Go into the world you want to dupe the items in
+↪ 3. Make sure 'Pause on Lost Focus' is off - Do this by pressing F3+P until you see something like "[Debug] Pause on lost focus: disabled" in chat
+↪ 4. Put the items that you would like to dupe in your inventory
+↪ 5. Close the world and open it up again
+↪ 6. When it loads drop the items on ground by pressing 'Q' on the item. Don't close your inventory.
+↪ 7. Quickly press ALT+TAB or CTRL+SHIFT+ESC to get into Task Manager
+↪ 8. End the process "Java(TM) Platform SE Binary" or "OpenJDK Platform Binary"
+↪ 9. Open Minecraft and load the world again and Collect your duped items.
+
+# Donkey Inventory Oversight (Patched in Paper/Spigot 1.15.2)
+↪ 1. https://youtu.be/AnIWx7gqRFw watch this video and do things exactly like in the video.
+
+# Tripwire Hook duplication
+↪ 1. https://youtu.be/YsvnyWGFtos watch this video and do things exactly like in the video.
+
+
+
+
+
+
+
+
+
+
+
+
+
