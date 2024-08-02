@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const luaFilePath = path.join(__dirname, '/kangaroohub.lua');
+const luaFilePath = path.join(__dirname, 'kangaroohub.lua');
 const fileContents = fs.readFileSync(luaFilePath, 'utf8');
 
 export default function Kangaroohub() {}
