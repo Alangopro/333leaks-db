@@ -1,2 +1,0 @@
-local sigma = sigma
-dasa
