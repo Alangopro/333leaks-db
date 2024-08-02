@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
-const filePath = '/var/task/.next/server/pages/kangaroohub.lua';
+const luaFilePath = path.join(__dirname, '/.next/server/pages/kangaroohub.lua');
+const fileContents = fs.readFileSync(luaFilePath, 'utf8');
 
 export default function Kangaroohub() {}
 
 export const getServerSideProps = async () => {
-  const fileContents = fs.readFileSync(filePath, 'utf8');
   return {
     props: {},
     headers: {
