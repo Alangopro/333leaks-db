@@ -1,18 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 
-const pagesDir = require.context('../pages', true, /\.lua$/);
-const filePath = pagesDir.keys().find(key => key.endsWith('kangaroohub.lua'));
+const filePath = './kangaroohub.txt'; // assuming the file is in the same directory as the script
 
-if (!filePath) {
-  throw new Error(`File not found: kangaroohub.lua`);
-}
+export default function Kangaroohub() {}
 
-const fileContents = fs.readFileSync(path.join(pagesDir.resolve(filePath), filePath), 'utf8');
-return {
-  props: {},
-  headers: {
-    'Content-Type': 'text/plain',
-  },
-  body: fileContents,
+export const getServerSideProps = async () => {
+  const fileContents = fs.readFileSync(filePath, 'utf8');
+  return {
+    props: {},
+    headers: {
+      'Content-Type': 'text/plain',
+    },
+    body: fileContents,
+  };
 };
