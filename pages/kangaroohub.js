@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const filePath = path.join(process.cwd(), 'kangaroohub.lua');
+const filePath = path.join(process.cwd(), './kangaroohub.lua');
 
 export default function Kangaroohub() {}
 
