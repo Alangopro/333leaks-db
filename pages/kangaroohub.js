@@ -1,18 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-const filePath = path.join(process.cwd(), 'kangaroohub.txt');
+const filePath = path.join(process.cwd(), 'kangaroohub.lua');
 
-export default function Kangaroohub() {
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  return (
-    <div>
-      <pre>
-        {fileContents}
-      </pre>
-    </div>
-  );
-}
+export default function Kangaroohub() {}
 
 export const getServerSideProps = async () => {
   const fileContents = fs.readFileSync(filePath, 'utf8');
