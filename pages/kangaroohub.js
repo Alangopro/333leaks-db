@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const filePath = './var/task/.next/server/pages/kangaroohub.lua';
+const filePath = '/var/task/.next/server/pages/kangaroohub.lua';
 
 export default function Kangaroohub() {}
 
