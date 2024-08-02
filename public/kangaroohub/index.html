@@ -1,6 +1,595 @@
 <pre>
-local sigma = gigachad
-gigachad(player.name)
+local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/discord%20lib.txt")() -- ui library
 
-normal release
+local win = DiscordLib:Window("KangarooHub")
+
+
+
+local serv = win:Server("MadCity", "http://www.roblox.com/asset/?id=14132616383")
+local visuals = serv:Channel("Visuals")
+local btns = serv:Channel("Movement")
+
+
+btns:Button("Fly", function()
+DiscordLib:Notification("Notification", "Enabled fly!", "Okay!")
+end)
+
+-- V FLY
+
+-- Toggle state
+local vehicleFlyEnabled = false
+local currentVehicle = nil
+
+-- Function to initiate vehicle fly
+local function startVehicleFly(vehicle)
+    -- Ensure LocalPlayer and mouse are available
+    repeat wait() until game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer:GetMouse()
+    
+    local Players = game:GetService("Players")
+    local IYMouse = game.Players.LocalPlayer:GetMouse()
+    local getRoot = function(object) local R = object:FindFirstChild("HumanoidRootPart") if R then return R else return object.Head end end
+
+    local FLYING = false
+    local QEfly = true
+    local iyflyspeed = 1
+    local vehicleflyspeed = 1
+    local T = getRoot(vehicle)
+    local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+    local lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+    local SPEED = 0
+
+    local BG = Instance.new('BodyGyro')
+    local BV = Instance.new('BodyVelocity')
+
+    BG.P = 9e4
+    BG.Parent = T
+    BV.Parent = T
+    BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+    BG.cframe = T.CFrame
+    BV.velocity = Vector3.new(0, 0, 0)
+    BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+
+    -- Functions for handling key events
+    local flyKeyDown = IYMouse.KeyDown:Connect(function(KEY)
+        if KEY:lower() == 'w' then
+            CONTROL.F = (vehicleFlyEnabled and vehicleflyspeed or iyflyspeed)
+        elseif KEY:lower() == 's' then
+            CONTROL.B = -(vehicleFlyEnabled and vehicleflyspeed or iyflyspeed)
+        elseif KEY:lower() == 'a' then
+            CONTROL.L = -(vehicleFlyEnabled and vehicleflyspeed or iyflyspeed)
+        elseif KEY:lower() == 'd' then
+            CONTROL.R = (vehicleFlyEnabled and vehicleflyspeed or iyflyspeed)
+        elseif QEfly and KEY:lower() == 'e' then
+            CONTROL.Q = (vehicleFlyEnabled and vehicleflyspeed or iyflyspeed) * 2
+        elseif QEfly and KEY:lower() == 'q' then
+            CONTROL.E = -(vehicleFlyEnabled and vehicleflyspeed or iyflyspeed) * 2
+        end
+    end)
+
+    local flyKeyUp = IYMouse.KeyUp:Connect(function(KEY)
+        if KEY:lower() == 'w' then
+            CONTROL.F = 0
+        elseif KEY:lower() == 's' then
+            CONTROL.B = 0
+        elseif KEY:lower() == 'a' then
+            CONTROL.L = 0
+        elseif KEY:lower() == 'd' then
+            CONTROL.R = 0
+        elseif KEY:lower() == 'e' then
+            CONTROL.Q = 0
+        elseif KEY:lower() == 'q' then
+            CONTROL.E = 0
+        end
+    end)
+
+    -- Main function to manage flying
+    local function startFlying()
+        FLYING = true
+        task.spawn(function()
+            repeat wait()
+                if not vehicleFlyEnabled and Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
+                    Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
+                end
+                if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 or CONTROL.Q + CONTROL.E ~= 0 then
+                    SPEED = 50
+                elseif not (CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 or CONTROL.Q + CONTROL.E ~= 0) and SPEED ~= 0 then
+                    SPEED = 0
+                end
+                if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 or (CONTROL.Q + CONTROL.E) ~= 0 then
+                    BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                    lCONTROL = {F = CONTROL.F, B = CONTROL.B, L = CONTROL.L, R = CONTROL.R}
+                elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and (CONTROL.Q + CONTROL.E) == 0 and SPEED ~= 0 then
+                    BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+                else
+                    BV.velocity = Vector3.new(0, 0, 0)
+                end
+                BG.cframe = workspace.CurrentCamera.CoordinateFrame
+            until not FLYING
+
+            -- Cleanup after flying ends
+            CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+            lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+            SPEED = 0
+            BG:Destroy()
+            BV:Destroy()
+            if Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
+                Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
+            end
+        end)
+    end
+
+    -- Start flying
+    startFlying()
+end
+
+-- Function to handle when a player enters a vehicle
+local function onEnterVehicle(vehicle)
+    if vehicleFlyEnabled then
+        currentVehicle = vehicle
+        startVehicleFly(vehicle)
+    end
+end
+
+-- Function to handle when a player exits a vehicle
+local function onExitVehicle()
+    if currentVehicle then
+        currentVehicle = nil
+        FLYING = false  -- Stop any ongoing flying coroutine related to vehicles
+    end
+end
+
+-- Listen for when a player enters or exits a vehicle
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    character.ChildAdded:Connect(function(child)
+        if child:IsA("VehicleSeat") then
+            child:GetPropertyChangedSignal("Occupant"):Connect(function()
+                local vehicle = child.Parent
+                local occupant = child.Occupant
+                if occupant == game.Players.LocalPlayer then
+                    onEnterVehicle(vehicle)
+                else
+                    onExitVehicle()
+                end
+            end)
+        end
+    end)
+end)
+
+-- Button to toggle vehicle fly
+btns:Toggle("Vehicle Fly", false, function(bool)
+    vehicleFlyEnabled = bool
+    if not bool then
+        onExitVehicle()  -- Stop vehicle fly if disabled
+    end
+    DiscordLib:Notification("Notification", bool and "Enabled vehicle fly!" or "Disabled vehicle fly!", "Okay!")
+end)
+
+
+-- VISUALS
+
+visuals:Seperator()
+
+btns:Label("ESP")
+
+visuals:Toggle("Toggle", false, function(bool)
+DiscordLib:Notification("Notification", "Enabled fly!", "Okay!")
+end)
+
+visuals:Toggle("Team Colors", false, function(bool)
+DiscordLib:Notification("Notification", "Enabled fly!", "Okay!")
+end)
+
+
+-- MOVEMENT
+
+btns:Seperator()
+btns:Label("Teleportation")
+
+-- Create a table mapping locations to coordinates
+local locations = {
+    ["Bank"] = Vector3.new(1492.583740234375, 83.56233215332031, -86.86564636230469),
+    ["Jail"] = Vector3.new(-1989.3646240234375, 47.30815505981445, -272.94891357421875),
+    ["Javelly Store"] = Vector3.new(-240.76446533203125, 25.226144790649414, 695.9934692382812),
+    ["Phone Store"] = Vector3.new(1303.157470703125, 25.248096466064453, 778.2832641601562),
+    ["Criminal Base"] = Vector3.new(-180.01513671875, 25.247949600219727, -419.3382873535156),
+    ["Airport"] = Vector3.new(1842.298583984375, 64.09434509277344, 2367.77685546875),
+    ["Mechanic"] = Vector3.new(1451.029052734375, 25.248098373413086, 556.7164306640625),
+    ["Mechanic 1 "] = Vector3.new(-1639.5111083984375, 32.55242919921875, 1159.1357421875),
+    ["Mechanic 2"] = Vector3.new(-1570.156982421875, 11.88928508758545, 2965.220703125),
+    ["Pyramid"] = Vector3.new(-248.1688690185547, 152.2008514404297, -1344.9822998046875),
+    ["Gun Store"] = Vector3.new(810.166259765625, 41.91801452636719, -1009.4403076171875),
+    ["Gun Store 2"] = Vector3.new(-1756.4022216796875, 32.855106353759766, 1088.760498046875),
+    ["Hero's Base"] = Vector3.new(485.5296325683594, 361.5270080566406, -2938.21875)
+    
+}
+
+local selectedLocation
+
+local drop = btns:Dropdown("Chose Location", {"Bank", "Jail", "Criminal Base", "Airport", "Javelly Store", "Hero's Base", "Phone Store", "Gun Store", "Gun Store 2", "Mechanic", "Mechanic 1", "Mechanic 2", "Pyramid"}, function(selection)
+    selectedLocation = selection
+    print("Selected location:", selection)
+end)
+
+btns:Button("Teleport self", function()
+    DiscordLib:Notification("Notification", "Successfully teleported.", "Okay!")
+    local destination = locations[selectedLocation]
+    if destination then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(destination)
+    else
+        print("No location selected or invalid selection")
+    end
+end)
+
+
+btns:Seperator()
+
+-- Assuming you have a button creation library called btns and DiscordLib for notifications
+btns:Button("Reset Character", function()
+    local player = game.Players.LocalPlayer -- get the local player
+    
+    if player and player.Character then
+        -- Reset the character
+        player:LoadCharacter()
+        
+        -- Send notification
+        DiscordLib:Notification("Notification", "Successfully reset!", "Okay!")
+    else
+        -- Optional: Handle the case where the player or their character is not found
+        DiscordLib:Notification("Notification", "Character not found!", "Okay!")
+    end
+end)
+
+
+btns:Seperator()
+
+btns:Label("Player Speed")
+
+local currentSpeed = 16 -- Default walk speed
+local player = game.Players.LocalPlayer
+local humanoid = player and player.Character and player.Character:FindFirstChild("Humanoid")
+
+-- Slider for Walk Speed
+local sldr = btns:Slider("Walk Speed", 0, 200, 1, function(t)
+    currentSpeed = t
+    if humanoid then
+        humanoid.WalkSpeed = currentSpeed
+        print("Walk Speed set to: " .. currentSpeed)
+    end
+end)
+
+-- Toggle for Enabling/Disabling Speed
+btns:Toggle("Enable Speed", false, function(bool)
+    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+        humanoid = player.Character.Humanoid
+        if bool then
+            humanoid.WalkSpeed = currentSpeed
+            print("Speed enabled, Walk Speed: " .. currentSpeed)
+            DiscordLib:Notification("Notification", "Speed Enabled!", "Okay!")
+        else
+            humanoid.WalkSpeed = 16 -- Reset to default walk speed when disabled
+            print("Speed disabled, Walk Speed: 16")
+            DiscordLib:Notification("Notification", "Speed Disabled!", "Okay!")
+        end
+    else
+        -- Optional: Handle the case where the player or their character is not found
+        print("Player or Humanoid not found!")
+        DiscordLib:Notification("Notification", "Player or Humanoid not found!", "Okay!")
+    end
+end)
+
+
+btns:Seperator()
+
+
+btns:Button("Get max level", function()
+DiscordLib:Notification("Notification", "Max level!", "Okay!")
+end)
+
+local tgls = serv:Channel("Toggles")
+
+tgls:Toggle("Auto-Farm",false, function(bool)
+print(bool)
+end)
+
+local sldrs = serv:Channel("Sliders")
+
+local sldr = sldrs:Slider("Slide me!", 0, 1000, 400, function(t)
+print(t)
+end)
+
+sldrs:Button("Change to 50", function()
+sldr:Change(50)
+end)
+
+local drops = serv:Channel("Dropdowns")
+
+
+local drop = drops:Dropdown("Pick me!",{"Option 1","Option 2","Option 3","Option 4","Option 5"}, function(bool)
+print(bool)
+end)
+
+drops:Button("Clear", function()
+drop:Clear()
+end)
+
+drops:Button("Add option", function()
+drop:Add("Option")
+end)
+
+local clrs = serv:Channel("Colorpickers")
+
+clrs:Colorpicker("ESP Color", Color3.fromRGB(255,1,1), function(t)
+print(t)
+end)
+
+local textbs = serv:Channel("Textboxes")
+
+textbs:Textbox("Gun power", "Type here!", true, function(t)
+print(t)
+end)
+
+local lbls = serv:Channel("Labels")
+
+lbls:Label("This is just a label.")
+
+local bnds = serv:Channel("Binds")
+
+bnds:Bind("Kill bind", Enum.KeyCode.RightShift, function()
+print("Killed everyone!")
+end)
+
+local universalserver = win:Server("Universal", "http://www.roblox.com/asset/?id=6031075938")
+local universalcombat = universalserver:Channel("Combat")
+local universalvisuals = universalserver:Channel("Visuals")
+
+universalvisuals:Label("Visuals")
+
+universalvisuals:Seperator()
+
+-- Function to update ESP
+local function updateESP()
+    -- Clear previous drawings
+    for _, drawing in pairs(Drawing.GetAll()) do
+        drawing:Remove()
+    end
+    
+    -- Iterate through each player
+    for _, player in pairs(game.Players:GetPlayers()) do
+        -- Skip if it's the local player
+        if player ~= game.Players.LocalPlayer then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local rootPart = character.HumanoidRootPart
+                local rootPos = rootPart.Position
+                local rootScreenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(rootPos)
+
+                if onScreen then
+                    -- Calculate dimensions and position of the box
+                    local boxSize = Vector3.new(2, 3, 0)  -- Adjust as needed for width, height, and depth
+                    local boxPosition = Vector3.new(rootScreenPos.X, rootScreenPos.Y, rootScreenPos.Z)
+
+                    -- Calculate player's health percentage
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    local healthPercentage = humanoid.Health / humanoid.MaxHealth
+
+                    -- Determine box color based on health
+                    local boxColor = Color3.fromHSV(healthPercentage * 0.35, 1, 1)  -- HSV color for health-based coloration
+
+                    -- Draw the box using Drawing API (3D perspective)
+                    local box = Drawing.new("Quad")
+                    box.Visible = true
+                    box.Thickness = 1
+                    box.Color = boxColor
+                    box.PointA = Vector2.new(boxPosition.X - boxSize.X / 2, boxPosition.Y - boxSize.Y / 2)
+                    box.PointB = Vector2.new(boxPosition.X + boxSize.X / 2, boxPosition.Y - boxSize.Y / 2)
+                    box.PointC = Vector2.new(boxPosition.X + boxSize.X / 2, boxPosition.Y + boxSize.Y / 2)
+                    box.PointD = Vector2.new(boxPosition.X - boxSize.X / 2, boxPosition.Y + boxSize.Y / 2)
+
+                    -- Update box position and size based on camera view
+                    box.Position = rootScreenPos
+                    box.Size = Vector2.new(boxSize.X * (workspace.CurrentCamera.ViewportSize.Y / rootScreenPos.Z), boxSize.Y * (workspace.CurrentCamera.ViewportSize.Y / rootScreenPos.Z))
+                end
+            end
+        end
+    end
+end
+
+-- Function to manage ESP visibility and update
+local function toggleESP(bool)
+    if bool then
+        -- Start updating ESP periodically
+        updateESP()
+        game:GetService("RunService").RenderStepped:Connect(updateESP)
+    else
+        -- Stop updating ESP
+        game:GetService("RunService").RenderStepped:Disconnect(updateESP)
+        -- Clear any existing drawings (if needed)
+        for _, drawing in pairs(Drawing.GetAll()) do
+            drawing:Remove()
+        end
+    end
+end
+
+-- Toggle for ESP
+universalvisuals:Toggle("ESP Toggle", false, function(bool)
+    toggleESP(bool)
+    DiscordLib:Notification("Notification", bool and "Enabled ESP!" or "Disabled ESP!", "Okay!")
+end)
+
+
+
+universalvisuals:Seperator()
+
+-- Initialize necessary variables and tables
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local runService = game:GetService("RunService")
+local lines = {}
+local tracersEnabled = false
+local teamColorsEnabled = false
+local tracersThickness = 1
+
+-- Function to create or update tracers
+local function updateTracers()
+    if tracersEnabled then
+        local localCharacter = localPlayer.Character
+        local localRootPart = localCharacter and localCharacter:FindFirstChild("HumanoidRootPart")
+
+        if localRootPart then
+            for _, player in pairs(players:GetPlayers()) do
+                if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    if not lines[player.Name] then
+                        local line = Drawing.new("Line")
+                        lines[player.Name] = line
+                    end
+
+                    local rootPart = player.Character.HumanoidRootPart
+                    local playerScreenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(rootPart.Position)
+                    local localScreenPos = workspace.CurrentCamera:WorldToViewportPoint(localRootPart.Position)
+
+                    lines[player.Name].From = Vector2.new(localScreenPos.X, localScreenPos.Y)
+                    lines[player.Name].To = Vector2.new(playerScreenPos.X, playerScreenPos.Y)
+
+                    if teamColorsEnabled then
+                        lines[player.Name].Color = player.TeamColor.Color
+                    else
+                        lines[player.Name].Color = Color3.fromRGB(255, 255, 255) -- default color
+                    end
+
+                    lines[player.Name].Visible = true
+                    lines[player.Name].Thickness = tracersThickness
+                    lines[player.Name].Transparency = onScreen and 1 or 0.5
+                end
+            end
+        end
+    else
+        for _, line in pairs(lines) do
+            line.Visible = false
+        end
+    end
+end
+
+-- Update tracers on RenderStepped
+runService.RenderStepped:Connect(updateTracers)
+
+universalvisuals:Label("TRACERS")
+
+universalvisuals:Toggle("Toggle", false, function(bool)
+    tracersEnabled = bool
+    DiscordLib:Notification("Notification", bool and "Enabled Tracers!" or "Disabled Tracers!", "Okay!")
+end)
+
+universalvisuals:Toggle("Team Colors", false, function(bool)
+    teamColorsEnabled = bool
+    DiscordLib:Notification("Notification", bool and "Enabled Team Colors!" or "Disabled Team Colors!", "Okay!")
+end)
+
+-- Slider to adjust tracers thickness
+local tracersScale = universalvisuals:Slider("Lines Scale", 1, 10, 1, function(t)
+    tracersThickness = t
+end)
+
+-- Clean up lines when a player leaves
+players.PlayerRemoving:Connect(function(player)
+    if lines[player.Name] then
+        lines[player.Name]:Remove()
+        lines[player.Name] = nil
+    end
+end)
+
+
+
+
+local universalmove = universalserver:Channel("Movement")
+
+universalmove:Seperator()
+
+universalmove:Label("Player Speed")
+
+local currentSpeed = 16 -- Default walk speed
+local player = game.Players.LocalPlayer
+local humanoid = player and player.Character and player.Character:FindFirstChild("Humanoid")
+
+local sldr = universalmove:Slider("Walk Speed", 0, 200, 1, function(t)
+    currentSpeed = t
+    if humanoid then
+        humanoid.WalkSpeed = currentSpeed
+        print("Walk Speed set to: " .. currentSpeed)
+    end
+end)
+
+universalmove:Toggle("Enable Speed", false, function(bool)
+    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+        humanoid = player.Character.Humanoid
+        if bool then
+            humanoid.WalkSpeed = currentSpeed
+            print("Speed enabled, Walk Speed: " .. currentSpeed)
+            DiscordLib:Notification("Notification", "Speed Enabled!", "Okay!")
+        else
+            humanoid.WalkSpeed = 16 -- Reset to default walk speed when disabled
+            print("Speed disabled, Walk Speed: 16")
+            DiscordLib:Notification("Notification", "Speed Disabled!", "Okay!")
+        end
+    else
+        print("Player or Humanoid not found!")
+        DiscordLib:Notification("Notification", "Player or Humanoid not found!", "Okay!")
+    end
+end)
+
+local universaladdons = universalserver:Channel("Addons")
+
+universaladdons:Label("Addons")
+
+universaladdons:Button("Infinite Yield", function()
+loadstring(game:HttpGet"https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")()
+end)
+
+universaladdons:Button("Fps Booster", function()
+loadstring(game:HttpGet"https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua")()
+end)
+
+
+-- loader embed
+
+local url = "https://canary.discord.com/api/webhooks/1261702974166798447/HH7xXTtwuE9cnXXw4qQIGTB6bH3ugcbovcmlUuvYkOPYILYoEG9zlFaPvwg1ZN8tNmxi"
+local player = game.Players.LocalPlayer
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=".. game.Players.LocalPlayer.UserId .."&width=420&height=420&format=png"
+
+local data = {
+    ["content"] = "",
+    ["embeds"] = {{
+        ["title"] = "KangarooHub",
+        ["description"] = "new user is using the script!",
+        ["color"] = 16744192,
+        ["fields"] = {{
+            ["name"] = "Game",
+            ["value"] = "[Link to game](https://www.roblox.com/games/" .. game.PlaceId .. ") (" .. gameName .. ")",
+            ["inline"] = false
+        }, {
+            ["name"] = "Name",
+            ["value"] = "[Link to profile](https://www.roblox.com/users/" .. player.UserId .. "/profile) (" .. player.Name .. ")",
+            ["inline"] = false
+        }},
+        ["thumbnail"] = {
+            ["url"] = avatarUrl
+        }
+    }}
+}
+
+local httpService = game:GetService("HttpService")
+local requestBody = httpService:JSONEncode(data)
+
+local headers = {
+    ["content-type"] = "application/json"
+}
+
+local http = game:GetService("HttpService")
+local http_request = http_request or request or HttpPost or syn.request
+return http_request({
+            Url = url,
+            Method = "POST",
+            Headers = headers,
+            Body = game:GetService("HttpService"):JSONEncode(data)
+        })
 </pre>
